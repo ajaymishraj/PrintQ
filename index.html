@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PrintQ — Smart Campus Print Queue</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============================================================
+     LOGIN VIEW
+============================================================ -->
+<div id="login-view" class="view active">
+  <div class="login-wrap">
+    <div class="panda-stage" id="panda-stage">
+      <div class="arms">
+        <div class="arm l"></div>
+        <div class="arm r"></div>
+      </div>
+      <div class="panda-face">
+        <div class="ear l"></div><div class="ear r"></div>
+        <div class="ep l"><div class="ew"></div></div>
+        <div class="ep r"><div class="ew"></div></div>
+        <div class="blush l"></div><div class="blush r"></div>
+        <div class="panda-nose"></div>
+        <div class="panda-mouth"></div>
+      </div>
+    </div>
+
+    <div class="login-card">
+      <div class="role-tabs">
+        <button class="rtab active" id="tab-s" onclick="setRole('student')">&#127891; Student</button>
+        <button class="rtab" id="tab-k" onclick="setRole('shopkeeper')">&#128424; Shopkeeper</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div id="login-form">
+        <label class="login-label" for="l-user" id="l-user-label">Email</label>
+        <input class="login-input" id="l-user" type="email" placeholder="you@example.com" autocomplete="email">
+        <label class="login-label" for="l-pw" style="margin-top:2px">Password</label>
+        <div class="pw-wrap">
+          <input class="login-input" id="l-pw" type="password" placeholder="Enter password" autocomplete="current-password">
+          <button class="pw-eye" id="pw-eye-btn" onclick="togglePW()" tabindex="-1">&#128065;</button>
+        </div>
+        <button class="login-btn" onclick="doLogin()">LOGIN</button>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:14px;font-size:12.5px;text-align:center">
+          <span id="register-link" style="color:#43A047;cursor:pointer;font-weight:600" onclick="showRegister()">First time printing? <u>Register here</u></span>
+          <span style="color:#bbb;cursor:pointer" onclick="showForgot()">Forgot password?</span>
+        </div>
+      </div>
+
+      <!-- REGISTER FORM -->
+      <div id="register-form" style="display:none">
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:#111;margin-bottom:16px">Create Account</div>
+        <label class="login-label" for="r-name">Full Name</label>
+        <input class="login-input" id="r-name" type="text" placeholder="Ajay Sharma" autocomplete="name">
+        <label class="login-label" for="r-email">Email</label>
+        <input class="login-input" id="r-email" type="email" placeholder="you@example.com" autocomplete="email">
+        <label class="login-label" for="r-pw">Password</label>
+        <input class="login-input" id="r-pw" type="password" placeholder="Min 6 characters" autocomplete="new-password">
+        <button class="login-btn" onclick="doRegister()">CREATE ACCOUNT</button>
+        <p style="text-align:center;font-size:12px;color:#aaa;margin-top:12px;cursor:pointer" onclick="showLogin()">Already have an account? Login</p>
+      </div>
+
+      <!-- FORGOT PASSWORD FORM -->
+      <div id="forgot-form" style="display:none">
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:#111;margin-bottom:8px">Reset Password</div>
+        <p style="font-size:12px;color:#888;margin-bottom:14px;line-height:1.5">Enter your email and we'll send you a reset link.</p>
+        <label class="login-label" for="f-email">Email</label>
+        <input class="login-input" id="f-email" type="email" placeholder="you@example.com">
+        <button class="login-btn" onclick="doForgot()">SEND RESET LINK</button>
+        <p style="text-align:center;font-size:12px;color:#aaa;margin-top:12px;cursor:pointer" onclick="showLogin()">Back to Login</p>
+      </div>
+    </div>
+
+    <div class="paws">
+      <div class="paw"></div>
+      <div class="paw"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     STUDENT VIEW
+============================================================ -->
+<div id="student-view" class="view">
+  <div class="bg-mesh">
+    <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  </div>
+
+  <div class="nav-wrap">
+    <nav class="liq-nav">
+      <div class="nav-items" id="s-nav-items">
+        <div class="a-pill" id="s-pill"></div>
+        <button class="nbtn active" id="sn-queue" onclick="sNav('queue',this)">
+          <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+          <span>New Job</span>
+        </button>
+        <button class="nbtn" id="sn-jobs" onclick="sNav('jobs',this)">
+          <svg viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+          <span>My Jobs</span>
+        </button>
+        <button class="nbtn" id="sn-ticket" onclick="sNav('ticket',this)" style="display:none">
+          <svg viewBox="0 0 24 24"><path d="M2 9V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4M2 15v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+          <span>Ticket</span>
+        </button>
+      </div>
+      <div class="nav-divider"></div>
+      <button class="n-icon-btn" onclick="doLogout()" title="Logout">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </nav>
+  </div>
+
+  <div class="main">
+    <div class="container">
+
+      <!-- New Job Form Pane -->
+      <div id="s-queue-pane">
+        <div class="pg-hdr">
+          <div class="badge">PrintQ</div>
+          <h1 class="pg-title">Skip the Line.<br>Print Smarter.</h1>
+          <p class="pg-sub">Pay online and secure your spot from anywhere on campus.</p>
+        </div>
+
+        <div class="cap-bar">
+          <span class="cap-lbl">Queue</span>
+          <div class="cap-track"><div class="cap-fill" id="cap-fill" style="width:0%"></div></div>
+          <span class="cap-cnt" id="cap-cnt">0 / 60</span>
+        </div>
+        <div class="full-alert" id="full-alert" style="display:none">
+          Queue is full (60/60). Come back in a few minutes!
+        </div>
+
+        <div class="gc" id="form-card">
+          <div class="fgrp">
+            <label class="flabel">Your Name</label>
+            <input class="finput" id="s-name" type="text" placeholder="e.g. Ajay Sharma" autocomplete="off">
+          </div>
+          <div class="fgrp">
+            <label class="flabel">WhatsApp Number</label>
+            <input class="finput" id="s-phone" type="tel" placeholder="+91 98765 43210" maxlength="15">
+            <p class="fhint">Shopkeeper can WhatsApp you when your print is ready.</p>
+          </div>
+
+          <div class="fgrp">
+            <label class="flabel">Upload Your Document</label>
+            <div class="upload-z" id="upload-z" onclick="triggerFileInput()">
+              <input type="file" id="file-inp" style="display:none" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.ppt,.pptx" onchange="onFile(event)">
+              <div class="up-icon">&#128196;</div>
+              <p class="up-text">Click to <span>select your file</span></p>
+              <p class="up-sub">PDF, Word, Images, PPT &mdash; max 50 MB</p>
+            </div>
+            <div class="file-actions" id="file-actions" style="display:none">
+              <button class="btn btn-danger btn-sm" type="button" onclick="removeFile()">&#128465; Remove File</button>
+            </div>
+          </div>
+
+          <div class="two-col">
+            <div class="fgrp">
+              <label class="flabel">Print Type</label>
+              <div class="seg" id="color-seg">
+                <button class="active" type="button" onclick="setPrintOption('color','bw',this)">B&amp;W</button>
+                <button type="button" onclick="setPrintOption('color','color',this)">Colored</button>
+              </div>
+            </div>
+            <div class="fgrp">
+              <label class="flabel">Sides</label>
+              <div class="seg" id="side-seg">
+                <button class="active" type="button" onclick="setPrintOption('sides','single',this)">Single</button>
+                <button type="button" onclick="setPrintOption('sides','double',this)">Double</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="two-col">
+            <div class="fgrp">
+              <label class="flabel">Copies</label>
+              <input class="finput" id="s-copies" type="number" min="1" value="1" oninput="updateEstimate()">
+            </div>
+            <div class="fgrp">
+              <label class="flabel">Finishing</label>
+              <div class="seg" id="finish-seg">
+                <button class="active" type="button" onclick="setPrintOption('finish','none',this)">None</button>
+                <button type="button" onclick="setPrintOption('finish','staple',this)">Staple</button>
+                <button type="button" onclick="setPrintOption('finish','bind',this)">Bind</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="fgrp" style="margin-bottom:0">
+            <label class="flabel">Special Instructions <span style="font-weight:400;color:var(--t3)">(optional)</span></label>
+            <input class="finput" id="s-desc" type="text" placeholder="e.g. Print only odd pages, leave page 3 blank...">
+          </div>
+
+          <div class="price-box">
+            <div class="price-chip">
+              <div class="price-lbl">Pages</div>
+              <div class="price-val" id="est-pages">1</div>
+            </div>
+            <div class="price-chip">
+              <div class="price-lbl">Rate / page</div>
+              <div class="price-val" id="est-rate">Rs 2</div>
+            </div>
+            <div class="price-chip">
+              <div class="price-lbl">Total</div>
+              <div class="price-val" id="est-total" style="color:var(--green)">Rs 2</div>
+            </div>
+          </div>
+
+          <div class="pay-note" id="payment-note">
+            Payment required to confirm. QR ticket and queue entry appear only after payment is complete.
+          </div>
+
+          <div style="margin-top:18px">
+            <button class="btn btn-pri" id="submit-btn" onclick="submitJob()">
+              Pay &amp; Get Token
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- My Jobs Pane -->
+      <div id="s-jobs-pane" style="display:none">
+        <div class="pg-hdr">
+          <div class="badge">My Jobs</div>
+          <h1 class="pg-title">Your Print History</h1>
+          <p class="pg-sub">All your paid jobs. Tap any job to view the ticket.</p>
+        </div>
+        <div id="my-jobs-list"></div>
+      </div>
+
+      <!-- Ticket Pane -->
+      <div id="s-ticket-pane" style="display:none">
+        <div class="pg-hdr">
+          <div class="badge">Confirmed</div>
+          <h1 class="pg-title">Your Digital Ticket</h1>
+          <p class="pg-sub">Track your print job status live.</p>
+        </div>
+
+        <div class="ready-banner" id="ready-banner" style="display:none">
+          <div class="rb-icon">&#128994;</div>
+          <div>
+            <div class="rb-title">Your print is ready!</div>
+            <div class="rb-sub">Head to the counter now and show this ticket.</div>
+          </div>
+        </div>
+
+        <div class="collected-banner" id="collected-banner" style="display:none">
+          <div class="rb-icon">&#127881;</div>
+          <div>
+            <div class="rb-title">Job Completed!</div>
+            <div class="rb-sub">This job has been collected. Thanks for using PrintQ!</div>
+          </div>
+        </div>
+
+        <div class="ticket">
+          <div class="t-logo">
+            <div class="t-logo-icon">&#128424;</div>
+            Print<span style="color:var(--brand-l)">Q</span>
+          </div>
+          <div class="t-top">
+            <div>
+              <div class="t-token-lbl">Token Number</div>
+              <div class="t-token" id="t-token">#PRNT-001</div>
+            </div>
+            <div class="t-qr">
+              <div id="qr-box"></div>
+              <div class="qr-lbl">Scan at counter</div>
+            </div>
+          </div>
+
+          <div class="t-meta">
+            <div class="t-meta-item">
+              <div class="t-meta-lbl">Ahead of you</div>
+              <div class="t-meta-val" id="t-pos">--</div>
+            </div>
+            <div class="t-meta-item">
+              <div class="t-meta-lbl">Est. Wait</div>
+              <div class="t-meta-val" id="t-wait">--</div>
+            </div>
+            <div class="t-meta-item">
+              <div class="t-meta-lbl">Paid</div>
+              <div class="t-meta-val" id="t-paid">--</div>
+            </div>
+            <div class="t-meta-item">
+              <div class="t-meta-lbl">Print Type</div>
+              <div class="t-meta-val" id="t-type">--</div>
+            </div>
+          </div>
+
+          <hr class="t-divider">
+
+          <div class="t-bottom">
+            <div>
+              <div class="t-name" id="t-name"></div>
+              <div class="t-doc" id="t-doc"></div>
+              <div class="t-issued" id="t-issued"></div>
+              <div id="t-deadline" style="display:none;margin-top:6px;font-size:11.5px;color:var(--amber);background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:6px;padding:6px 10px;line-height:1.4"></div>
+            </div>
+            <div class="sbadge s-pending" id="t-sbadge">
+              <div class="sdot"></div>
+              <span id="t-stxt">In Queue</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="cdown" id="cdown-card">
+          <div class="cdown-icon">&#9203;</div>
+          <div>
+            <div class="cdown-lbl">Estimated Wait</div>
+            <div class="cdown-val" id="cdown-val">Calculating...</div>
+            <div class="cdown-sub">Updates automatically as the shopkeeper works.</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px">
+          <button class="btn btn-ghost" style="flex:1" onclick="sNav('queue',document.getElementById('sn-queue'))">
+            + New Job
+          </button>
+          <button class="btn btn-danger btn-sm" onclick="cancelJob()" style="flex:none;padding:11px 15px">
+            Cancel
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SHOPKEEPER VIEW
+============================================================ -->
+<div id="shopkeeper-view" class="view">
+  <div class="bg-mesh">
+    <div class="blob b1" style="background:radial-gradient(ellipse,#34D399,#059669)"></div>
+    <div class="blob b2" style="background:radial-gradient(ellipse,#7C3AED,#4C1D95)"></div>
+    <div class="blob b3" style="background:radial-gradient(ellipse,#F59E0B,#92400E)"></div>
+  </div>
+
+  <div class="nav-wrap">
+    <nav class="liq-nav">
+      <div class="nav-items" id="k-nav-items">
+        <div class="a-pill" id="k-pill"></div>
+        <button class="nbtn active" id="kn-dash" onclick="kNav('dash',this)">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          <span>Dashboard</span>
+        </button>
+        <button class="nbtn" id="kn-history" onclick="kNav('history',this)">
+          <svg viewBox="0 0 24 24"><polyline points="12 8 12 12 14 14"/><path d="M3.05 11a9 9 0 1 0 .5-4.5"/><polyline points="3 3 3 9 9 9"/></svg>
+          <span>History</span>
+        </button>
+      </div>
+      <div class="nav-divider"></div>
+      <button class="n-icon-btn" onclick="doLogout()">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </nav>
+  </div>
+
+  <div class="main">
+    <div class="container wide">
+
+      <!-- Dashboard Pane -->
+      <div id="k-dash-pane">
+        <div class="pg-hdr">
+          <div class="badge">Counter View</div>
+          <h1 class="pg-title">Print Queue Dashboard</h1>
+          <p class="pg-sub">All active paid jobs. Live updates every 3s.</p>
+        </div>
+
+        <div class="stats-row">
+          <div class="sc amb"><div class="sc-num" id="st-pend">0</div><div class="sc-lbl">Pending</div></div>
+          <div class="sc brd"><div class="sc-num" id="st-prnt">0</div><div class="sc-lbl">Printing</div></div>
+          <div class="sc grn"><div class="sc-num" id="st-rdy">0</div><div class="sc-lbl">Ready</div></div>
+        </div>
+
+        <div class="q-table">
+          <div class="q-thead">
+            <div>Token</div><div>Student / Job Details</div><div>Status</div><div>Actions</div>
+          </div>
+          <div id="q-rows"></div>
+        </div>
+      </div>
+
+      <!-- History Pane -->
+      <div id="k-history-pane" style="display:none">
+        <div class="pg-hdr">
+          <div class="badge">History</div>
+          <h1 class="pg-title">Completed Jobs</h1>
+          <p class="pg-sub">All collected jobs. Search by name, token, or phone.</p>
+        </div>
+        <div class="search-row">
+          <input class="s-input" id="srch-inp" type="text" placeholder="Search name, #PRNT-XXX, phone..." oninput="doSearch()">
+          <button class="btn btn-ghost" onclick="clearSearch()">Clear</button>
+        </div>
+        <div class="q-table">
+          <div class="q-thead">
+            <div>Token</div><div>Student / Job Details</div><div>Status</div><div>Actions</div>
+          </div>
+          <div id="hist-rows"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="js/config.js"></script>
+<script src="js/db.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
