@@ -7,7 +7,7 @@ PrintQ is a web-based, real-time print queue management system designed for camp
 ## Key Features
 
 - **Dual-Role Interface**: Separate customized views for **Students** (job submission, pricing estimate, live ticket tracker) and **Shopkeepers** (active queue, job stats, search history, progress updates).
-- **Online Payments**: Fully integrated server-side PayU hash generation and PayU Bolt checkout for secure payment processing.
+- **Online Payments**: Fully integrated server-side PayU hash generation and PayU Bolt checkout for secure payment processing. (you can use anything@payu upi id for testing the payments and verifying the output)
 - **Secure Credentials**: Admin passwords and PayU API salt/key are stored safely as encrypted server-side Supabase environment secrets.
 - **File Management**: Direct-to-storage document uploading with built-in client/server retention cleanup (automatically purges files older than 48 hours to save storage).
 - **Offline / Local Demo Fallback**: Automatically falls back to local storage and payment simulation if Supabase is not configured, making development and demonstration easy.
