@@ -18,11 +18,55 @@ let selectedFileObj = null;
 let qrRendered = false;
 
 // ── Boot ─────────────────────────────────────────────────────
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
   const local = lsLoad();
   APP.queue   = local.queue;
   APP.counter = local.counter;
-  showView('login-view');
+
+  let sessionRestored = false;
+
+  if (HAS_SUPABASE && typeof _sb !== 'undefined' && _sb) {
+    try {
+      const { data: { session } } = await _sb.auth.getSession();
+      if (session) {
+        const displayName = session.user.user_metadata?.full_name || session.user.email.split('@')[0];
+        APP.role = 'student';
+        APP.loginName = displayName;
+        APP.userEmail = session.user.email;
+        localStorage.setItem('pq_logged_in_role', 'student');
+        localStorage.setItem('pq_logged_in_name', displayName);
+        localStorage.setItem('pq_logged_in_email', session.user.email);
+        
+        showView('student-view');
+        await initStudent(displayName);
+        sessionRestored = true;
+      }
+    } catch (e) {
+      console.warn('[PrintQ] Failed to restore session:', e);
+    }
+  }
+
+  if (!sessionRestored) {
+    const preservedRole = localStorage.getItem('pq_logged_in_role');
+    if (preservedRole === 'shopkeeper') {
+      APP.role = 'shopkeeper';
+      APP.userEmail = localStorage.getItem('pq_logged_in_email') || '';
+      showView('shopkeeper-view');
+      await initShop();
+      sessionRestored = true;
+    } else if (preservedRole === 'student') {
+      APP.role = 'student';
+      APP.loginName = localStorage.getItem('pq_logged_in_name') || '';
+      APP.userEmail = localStorage.getItem('pq_logged_in_email') || '';
+      showView('student-view');
+      await initStudent(APP.loginName);
+      sessionRestored = true;
+    }
+  }
+
+  if (!sessionRestored) {
+    showView('login-view');
+  }
 
   // Panda eye-covering
   const pw = document.getElementById('l-pw');
@@ -98,6 +142,9 @@ async function doLogin() {
         }
         const data = await res.json();
         if (data && data.success) {
+          APP.userEmail = email;
+          localStorage.setItem('pq_logged_in_role', 'shopkeeper');
+          localStorage.setItem('pq_logged_in_email', email);
           showView('shopkeeper-view');
           await initShop();
         } else {
@@ -114,6 +161,9 @@ async function doLogin() {
       if (email !== SHOP_EMAIL || pass !== 'shop123') {
         toast('Invalid shopkeeper credentials.', 'err'); return;
       }
+      APP.userEmail = email;
+      localStorage.setItem('pq_logged_in_role', 'shopkeeper');
+      localStorage.setItem('pq_logged_in_email', email);
       showView('shopkeeper-view');
       await initShop();
       return;
@@ -130,12 +180,18 @@ async function doLogin() {
     const displayName = data.user.user_metadata?.full_name || email.split('@')[0];
     APP.loginName = displayName;
     APP.userEmail = email;
+    localStorage.setItem('pq_logged_in_role', 'student');
+    localStorage.setItem('pq_logged_in_name', displayName);
+    localStorage.setItem('pq_logged_in_email', email);
     showView('student-view');
     await initStudent(displayName);
   } else {
     // Local fallback: email as username, any password works
     APP.loginName = email.split('@')[0];
     APP.userEmail = email;
+    localStorage.setItem('pq_logged_in_role', 'student');
+    localStorage.setItem('pq_logged_in_name', APP.loginName);
+    localStorage.setItem('pq_logged_in_email', email);
     showView('student-view');
     await initStudent(APP.loginName);
   }
@@ -164,6 +220,9 @@ async function doRegister() {
     // Local fallback: just log them in
     APP.loginName = name;
     APP.userEmail = email;
+    localStorage.setItem('pq_logged_in_role', 'student');
+    localStorage.setItem('pq_logged_in_name', name);
+    localStorage.setItem('pq_logged_in_email', email);
     showView('student-view');
     await initStudent(name);
   }
@@ -194,6 +253,9 @@ async function doLogout() {
   APP.myJobId = null;
   qrRendered  = false;
   selectedFileObj = null;
+  localStorage.removeItem('pq_logged_in_role');
+  localStorage.removeItem('pq_logged_in_name');
+  localStorage.removeItem('pq_logged_in_email');
   if (HAS_SUPABASE) await _sb.auth.signOut().catch(() => {});
   showView('login-view');
   showLogin();
@@ -664,7 +726,7 @@ function renderMyJobsList() {
         </div>
         <div class="mini-actions">
           <span class="sbadge ${cls}" style="font-size:11px"><div class="sdot"></div>${lbl}</span>
-          ${hasFile ? `<a class="btn btn-ghost btn-sm" href="${j.fileUrl}" target="_blank" rel="noopener noreferrer">&#11123;</a>` : ''}
+          ${hasFile ? `<button class="btn btn-ghost btn-sm" onclick="downloadFileDirectly('${escAttr(j.fileUrl)}', '${escAttr(j.doc)}')" title="Download">&#11123;</button>` : ''}
           <button class="btn btn-ghost btn-sm" onclick="openMyJob('${j.id}')">View</button>
         </div>
       </div>`;
@@ -767,13 +829,21 @@ function kNav(pane, btn) {
 // ─────────────────────────────────────────────────────────────
 function renderQueue() {
   updateStats();
-  const active = APP.queue
+  const q = (document.getElementById('q-srch-inp')?.value || '').trim().toLowerCase();
+  let active = APP.queue
     .filter(j => j.status !== 'collected' && j.paymentStatus === 'paid')
     .sort((a, b) => a.num - b.num);
+  if (q) {
+    active = active.filter(j =>
+      j.name.toLowerCase().includes(q) ||
+      j.tok.toLowerCase().includes(q)  ||
+      j.phone.includes(q)              ||
+      j.doc.toLowerCase().includes(q));
+  }
   const el = document.getElementById('q-rows');
   if (!el) return;
   if (!active.length) {
-    el.innerHTML = `<div class="empty-q"><div class="empty-q-icon">&#127881;</div><p style="font-size:14px;color:var(--t2)">Queue is empty &mdash; all caught up!</p></div>`;
+    el.innerHTML = `<div class="empty-q"><div class="empty-q-icon">&#127881;</div><p style="font-size:14px;color:var(--t2)">${q ? 'No active jobs matching "' + escHtml(q) + '"' : 'Queue is empty — all caught up!'}</p></div>`;
     return;
   }
   el.innerHTML = active.map(j => buildRow(j, false)).join('');
@@ -806,6 +876,13 @@ function clearSearch() {
   const inp = document.getElementById('srch-inp');
   if (inp) inp.value = '';
   renderHistory();
+}
+
+function doSearchActive() { renderQueue(); }
+function clearSearchActive() {
+  const inp = document.getElementById('q-srch-inp');
+  if (inp) inp.value = '';
+  renderQueue();
 }
 
 function buildRow(job, isHistory) {
@@ -859,7 +936,7 @@ function buildRow(job, isHistory) {
 
 function dlBtn(job) {
   if (!job.fileUrl) return '';
-  return `<a class="btn btn-ghost btn-sm" href="${job.fileUrl}" download="${escAttr(job.doc)}" target="_blank" rel="noopener noreferrer">&#11123; Download</a>`;
+  return `<button class="btn btn-ghost btn-sm" onclick="downloadFileDirectly('${escAttr(job.fileUrl)}', '${escAttr(job.doc)}')">&#11123; Download</button>`;
 }
 
 function waIcon() {
@@ -1018,4 +1095,25 @@ function toast(msg, type = 'info') {
   el.innerHTML = `<span>${icons[type] || 'ℹ️'}</span> ${escHtml(msg)}`;
   wrap.appendChild(el);
   setTimeout(() => el.remove(), 4400);
+}
+
+async function downloadFileDirectly(url, filename) {
+  toast('Starting download...', 'info');
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Network response was not ok');
+    const blob = await res.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(blobUrl);
+    toast('Download complete.', 'ok');
+  } catch (err) {
+    console.warn('[PrintQ] Fetch download failed, opening in new tab instead:', err);
+    window.open(url, '_blank');
+  }
 }
