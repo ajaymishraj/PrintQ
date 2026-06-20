@@ -387,9 +387,13 @@ function updateEstimate() {
 // ─────────────────────────────────────────────────────────────
 async function collectPayment(job) {
   // Demo / test mode (no PayU config)
-  if (!HAS_PAYU || typeof bolt === 'undefined') {
+  if (!HAS_PAYU) {
     toast('Demo mode: payment simulated.', 'info');
     return { paymentId: 'demo_' + Date.now(), orderId: 'demo_order' };
+  }
+
+  if (typeof bolt === 'undefined' || typeof bolt.launch !== 'function') {
+    throw new Error('PayU Bolt SDK is still loading or failed to load. Please refresh or try again.');
   }
 
   const txnid = 'PQ' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);

@@ -478,10 +478,18 @@
 <!-- Toast Container -->
 <div class="toast-wrap" id="toast-wrap"></div>
 
+<script src="js/config.js"></script>
+<script>
+  // Dynamically load the correct PayU Bolt SDK script based on test mode setting
+  const boltScript = document.createElement('script');
+  boltScript.src = PRINTQ_CONFIG.payuTestMode
+    ? 'https://jssdk-uat.payu.in/bolt/bolt.min.js'
+    : 'https://jssdk.payu.in/bolt/bolt.min.js';
+  boltScript.id = 'bolt';
+  document.head.appendChild(boltScript);
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script id="bolt" src="https://sboxcheckout-static.citruspay.com/bolt/run/bolt.min.js" bolt-color="7C3AED" bolt-logo=""></script>
-<script src="js/config.js"></script>
 <script src="js/db.js"></script>
 <script src="js/app.js"></script>
 
