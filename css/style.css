@@ -275,6 +275,61 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);min-hei
 @keyframes tout{from{opacity:1}to{opacity:0;pointer-events:none}}
 
 /* ============================================================
+   SITE FOOTER (Login Page)
+============================================================ */
+.site-footer{width:100%;max-width:700px;margin:36px auto 0;padding:0 20px;position:relative;z-index:10}
+.footer-inner{background:rgba(255,255,255,0.08);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,0.15);border-radius:var(--r);padding:30px 28px 24px;text-align:center}
+.footer-brand{margin-bottom:18px}
+.footer-logo{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#fff}
+.footer-tagline{font-size:12px;color:rgba(255,255,255,.55);margin-top:4px}
+.footer-links{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 12px;margin-bottom:18px}
+.footer-link{background:none;border:1px solid rgba(255,255,255,.15);border-radius:var(--r-pill);padding:6px 14px;color:rgba(255,255,255,.8);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+.footer-link:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.3);color:#fff}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding-top:14px}
+.footer-legal{font-size:12px;color:rgba(255,255,255,.65);margin-bottom:4px}
+.footer-address{font-size:11px;color:rgba(255,255,255,.4);margin-bottom:4px}
+.footer-copy{font-size:10.5px;color:rgba(255,255,255,.35)}
+
+/* ============================================================
+   POLICY MODAL OVERLAY
+============================================================ */
+.policy-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity .3s ease}
+.policy-overlay.visible{opacity:1}
+.policy-modal{background:linear-gradient(160deg,#0f1229 0%,#1a1340 50%,#0f1229 100%);border:1px solid rgba(167,139,250,.25);border-radius:20px;max-width:650px;width:100%;max-height:85vh;overflow-y:auto;position:relative;padding:40px 36px;box-shadow:0 24px 80px rgba(0,0,0,.6);animation:modalIn .35s cubic-bezier(.34,1.4,.64,1)}
+@keyframes modalIn{from{opacity:0;transform:scale(.92) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.policy-close{position:absolute;top:14px;right:18px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:50%;width:36px;height:36px;color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;z-index:1;line-height:1}
+.policy-close:hover{background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.4);color:var(--red)}
+.policy-content{color:var(--t1);line-height:1.7}
+.policy-content h2{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:800;color:#fff;margin-bottom:6px;padding-bottom:12px;border-bottom:2px solid rgba(167,139,250,.2)}
+.policy-content h3{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:var(--brand-l);margin:22px 0 10px}
+.policy-content p{font-size:14px;color:rgba(255,255,255,.75);margin-bottom:12px}
+.policy-content ul,.policy-content ol{padding-left:22px;margin-bottom:14px}
+.policy-content li{font-size:13.5px;color:rgba(255,255,255,.7);margin-bottom:6px;line-height:1.6}
+.policy-content strong{color:#fff}
+.policy-content em{color:var(--t2);font-size:12.5px}
+.policy-table{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:13.5px}
+.policy-table th,.policy-table td{padding:10px 14px;text-align:left;border:1px solid rgba(255,255,255,.1)}
+.policy-table th{background:rgba(124,58,237,.15);color:var(--brand-l);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+.policy-table td{color:rgba(255,255,255,.7)}
+.policy-table tr:nth-child(even) td{background:rgba(255,255,255,.03)}
+.policy-modal::-webkit-scrollbar{width:6px}
+.policy-modal::-webkit-scrollbar-track{background:transparent}
+.policy-modal::-webkit-scrollbar-thumb{background:rgba(167,139,250,.3);border-radius:3px}
+
+/* ============================================================
+   PRICING TABLE (Student View)
+============================================================ */
+.pricing-table-section{margin-top:28px}
+.pricing-title{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--t1);text-align:center;margin-bottom:16px}
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.pricing-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:16px 12px;text-align:center;transition:all .2s}
+.pricing-card:hover{background:var(--surf2);border-color:var(--border2);transform:translateY(-2px)}
+.pricing-card-icon{font-size:26px;margin-bottom:6px}
+.pricing-card-name{font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:600;color:var(--t2);margin-bottom:4px}
+.pricing-card-price{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--green)}
+.pricing-card-price span{font-size:11px;font-weight:500;color:var(--t3)}
+
+/* ============================================================
    RESPONSIVE
 ============================================================ */
 @media(max-width:760px){
@@ -288,5 +343,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);min-hei
   .nbtn{padding:8px 10px}
   .two-col{grid-template-columns:1fr}
   .price-box{grid-template-columns:1fr 1fr 1fr}
+  .policy-modal{padding:28px 20px;margin:10px;max-height:90vh}
+  .policy-content h2{font-size:20px}
+  .footer-links{gap:5px 8px}
+  .footer-link{font-size:11px;padding:5px 10px}
+  .pricing-grid{grid-template-columns:repeat(2,1fr)}
 }
 @media(min-width:601px){.nbtn span{display:inline}}
