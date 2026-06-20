@@ -36,8 +36,8 @@ function fromDb(row) {
     ts:            row.created_at,
     updatedAt:     row.updated_at,
     paymentStatus: row.payment_status,
-    paymentId:     row.payment_id,
-    orderId:       row.order_id,
+    paymentId:     row.payment_id, // PayU payuMoneyId
+    orderId:       row.order_id,   // PayU txnid
     amount:        Number(row.amount || 0),
     pages:         row.pages,
     copies:        row.copies,
@@ -61,8 +61,8 @@ function toDb(job) {
     instructions:  job.desc,
     status:        job.status,
     payment_status: job.paymentStatus,
-    payment_id:    job.paymentId,
-    order_id:      job.orderId,
+    payment_id:    job.paymentId, // PayU payuMoneyId
+    order_id:      job.orderId,   // PayU txnid
     amount:        job.amount,
     pages:         job.pages,
     copies:        job.copies,

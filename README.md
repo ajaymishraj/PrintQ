@@ -1,14 +1,14 @@
 # PrintQ — Smart Campus Print Queue
 
-PrintQ is a web-based, real-time print queue management system designed for campus printing shops. It allows students to submit documents, customize print preferences (B&W/Colored, Single/Double-sided, Staple/Bind), pay online via **Razorpay**, and get a digital ticket with live queue tracking. Shopkeepers get a dynamic dashboard to manage printing progress, view student instructions, download files, and send status updates.
+PrintQ is a web-based, real-time print queue management system designed for campus printing shops. It allows students to submit documents, customize print preferences (B&W/Colored, Single/Double-sided, Staple/Bind), pay online via **PayU**, and get a digital ticket with live queue tracking. Shopkeepers get a dynamic dashboard to manage printing progress, view student instructions, download files, and send status updates.
 
 ---
 
 ## Key Features
 
 - **Dual-Role Interface**: Separate customized views for **Students** (job submission, pricing estimate, live ticket tracker) and **Shopkeepers** (active queue, job stats, search history, progress updates).
-- **Online Payments**: Fully integrated server-side Razorpay order creation for secure checkout processing.
-- **Secure Credentials**: Admin passwords and Razorpay API secret keys are stored safely as encrypted server-side Supabase environment secrets.
+- **Online Payments**: Fully integrated server-side PayU hash generation and PayU Bolt checkout for secure payment processing.
+- **Secure Credentials**: Admin passwords and PayU API salt/key are stored safely as encrypted server-side Supabase environment secrets.
 - **File Management**: Direct-to-storage document uploading with built-in client/server retention cleanup (automatically purges files older than 48 hours to save storage).
 - **Offline / Local Demo Fallback**: Automatically falls back to local storage and payment simulation if Supabase is not configured, making development and demonstration easy.
 
@@ -18,13 +18,13 @@ PrintQ is a web-based, real-time print queue management system designed for camp
 
 - **Frontend**: Vanilla HTML5, CSS3 (Liquid layouts, HSL variables, glassmorphism), and Vanilla JavaScript.
 - **Backend / Database**: Supabase (PostgreSQL Database, Storage Buckets, and Deno-based Serverless Edge Functions).
-- **Payment Processing**: Razorpay Checkout SDK.
+- **Payment Processing**: PayU Bolt Checkout SDK.
 
 ---
 
 ## Installation & Setup Guide
 
-Follow these steps to link your Supabase and Razorpay credentials to the application:
+Follow these steps to link your Supabase and PayU credentials to the application:
 
 ### Step 1: Set Up Supabase Database & Storage
 1. Create a new project on the [Supabase Dashboard](https://supabase.com).
@@ -32,10 +32,10 @@ Follow these steps to link your Supabase and Razorpay credentials to the applica
 3. Paste and run the SQL schema from `supabase/migrations/001_print_jobs.sql` to initialize the `print_jobs` table, configure Row Level Security (RLS) policies, and register the `print-files` storage bucket.
 
 ### Step 2: Set Environment Secrets on Supabase
-Open your terminal and use the Supabase CLI to set your Razorpay keys and shopkeeper admin credentials. Run:
+Open your terminal and use the Supabase CLI to set your PayU keys and shopkeeper admin credentials. Run:
 ```bash
-supabase secrets set RAZORPAY_KEY_ID="your_razorpay_key_id"
-supabase secrets set RAZORPAY_KEY_SECRET="your_razorpay_key_secret"
+supabase secrets set PAYU_KEY="your_payu_merchant_key"
+supabase secrets set PAYU_SALT="your_payu_salt"
 supabase secrets set SHOPKEEPER_EMAIL="admin@printq.local"
 supabase secrets set SHOPKEEPER_PASS="your_secure_admin_password"
 ```
@@ -43,7 +43,7 @@ supabase secrets set SHOPKEEPER_PASS="your_secure_admin_password"
 ### Step 3: Deploy Serverless Edge Functions
 Deploy the functions to your live Supabase project instance:
 ```bash
-supabase functions deploy create-razorpay-order
+supabase functions deploy create-payu-hash
 supabase functions deploy verify-shopkeeper
 ```
 

@@ -1,10 +1,10 @@
 /**
  * PrintQ Configuration
  * ─────────────────────────────────────────────────────────
- * Fill in your credentials here to enable Supabase + Razorpay.
+ * Fill in your credentials here to enable Supabase + PayU.
  * Until you do, the app runs in LOCAL DEMO MODE (no real DB or payments).
  *
- * HOW TO GET THESE VALUES: see SETUP_GUIDE.md
+ * HOW TO GET THESE VALUES: see README.md
  */
 const PRINTQ_CONFIG = {
 
@@ -13,19 +13,29 @@ const PRINTQ_CONFIG = {
   supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ2Y3RoaHduZ2ZiZXNrenB1cmN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4NjIxNzYsImV4cCI6MjA5NzQzODE3Nn0.1p5Dh0vmks4HAS8AXaeeJ_fgsXlXxFXYmlJ1BVDJweI',
 
   // URL of your Supabase Edge Functions. Computed dynamically using supabaseUrl.
-  get createOrderFunctionUrl() {
-    return this.supabaseUrl ? `${this.supabaseUrl}/functions/v1/create-razorpay-order` : '';
+  get createPayuHashUrl() {
+    return this.supabaseUrl ? `${this.supabaseUrl}/functions/v1/create-payu-hash` : '';
   },
   get verifyShopkeeperUrl() {
     return this.supabaseUrl ? `${this.supabaseUrl}/functions/v1/verify-shopkeeper` : '';
   },
 
+  // ── PayU Configuration ──────────────────────────────────
+  // Set to true for test/sandbox mode, false for production
+  payuTestMode: true,
+
   // ── Shop Info ────────────────────────────────────────────
-  shopName:    'Campus Print Shop',
+  shopName:    'PrintQ - Campus Print Shop',
   shopAddress: 'Near Main Gate, Campus',
   currency:    'INR',
   queueLimit:  60,
   avgMinPerJob: 3,
+
+  // ── Business Info (for policy pages — update with your real details) ──
+  tradeName:      'PrintQ',
+  legalName:      'PrintQ',
+  registeredAddress: 'Mathura, Uttar Pradesh, India',
+  contactEmail:   'support@printq.local',
 
   // ── Shopkeeper login (credentials verified via Edge Function) ─
   shopkeeperEmail: 'admin@printq.local',   // default login email
@@ -45,5 +55,4 @@ const PRINTQ_CONFIG = {
 const HAS_SUPABASE = PRINTQ_CONFIG.supabaseUrl.startsWith('https://') &&
                      PRINTQ_CONFIG.supabaseAnonKey.length > 40;
 
-const HAS_RAZORPAY = HAS_SUPABASE;
-
+const HAS_PAYU = HAS_SUPABASE;

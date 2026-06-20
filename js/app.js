@@ -383,50 +383,69 @@ function updateEstimate() {
 }
 
 // ─────────────────────────────────────────────────────────────
-//   PAYMENT
+//   PAYMENT  (PayU Bolt)
 // ─────────────────────────────────────────────────────────────
 async function collectPayment(job) {
-  // Demo / test mode (no Razorpay config)
-  if (!HAS_RAZORPAY || !window.Razorpay) {
+  // Demo / test mode (no PayU config)
+  if (!HAS_PAYU || typeof bolt === 'undefined') {
     toast('Demo mode: payment simulated.', 'info');
     return { paymentId: 'demo_' + Date.now(), orderId: 'demo_order' };
   }
 
-  // Call Supabase Edge Function to create Razorpay order
-  const res = await fetch(PRINTQ_CONFIG.createOrderFunctionUrl, {
+  const txnid = 'PQ' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+  // Call Supabase Edge Function to generate PayU hash server-side
+  const res = await fetch(PRINTQ_CONFIG.createPayuHashUrl, {
     method: 'POST',
     headers: {
       'Content-Type':  'application/json',
       'Authorization': `Bearer ${PRINTQ_CONFIG.supabaseAnonKey}`,
     },
     body: JSON.stringify({
-      amount:  job.amount * 100,   // Razorpay uses paise
-      receipt: job.id,
-      notes:   { token: job.tok, name: job.name },
+      txnid,
+      amount:      String(job.amount),
+      productinfo: job.doc || 'Print Job',
+      firstname:   job.name,
+      email:       APP.userEmail || 'customer@printq.local',
+      phone:       job.phone,
     }),
   });
   if (!res.ok) {
     const txt = await res.text().catch(() => '');
-    throw new Error('Could not create payment order. ' + txt);
+    throw new Error('Could not generate payment hash. ' + txt);
   }
-  const order = await res.json();
+  const hashData = await res.json();
 
   return new Promise((resolve, reject) => {
-    const rz = new Razorpay({
-      key:         order.razorpayKeyId,
-      amount:      order.amount,
-      currency:    order.currency || PRINTQ_CONFIG.currency,
-      name:        PRINTQ_CONFIG.shopName,
-      description: job.doc,
-      order_id:    order.id,
-      prefill:     { name: job.name, contact: job.phone },
-      handler:     (r) => resolve({ paymentId: r.razorpay_payment_id, orderId: r.razorpay_order_id }),
-      modal:       { ondismiss: () => reject(new Error('Payment cancelled')) },
-      theme:       { color: '#7C3AED' },
+    bolt.launch({
+      key:         hashData.key,
+      txnid:       hashData.txnid,
+      hash:        hashData.hash,
+      amount:      hashData.amount,
+      firstname:   hashData.firstname,
+      email:       hashData.email,
+      phone:       hashData.phone,
+      productinfo: hashData.productinfo,
+      surl:        window.location.href,
+      furl:        window.location.href,
+    }, {
+      responseHandler: function(response) {
+        if (response.response.txnStatus === 'SUCCESS') {
+          resolve({
+            paymentId: response.response.payuMoneyId || response.response.mihpayid || txnid,
+            orderId:   response.response.txnid || txnid,
+          });
+        } else {
+          reject(new Error('Payment failed: ' + (response.response.txnMessage || 'Transaction not successful')));
+        }
+      },
+      catchException: function(response) {
+        reject(new Error(response.message || 'Payment cancelled or failed'));
+      }
     });
-    rz.open();
   });
 }
+
 
 // ─────────────────────────────────────────────────────────────
 //   SUBMIT JOB
