@@ -6,7 +6,7 @@
  *
  * Set secrets with:
  *   supabase secrets set SHOPKEEPER_EMAIL=admin@printq.local
- *   supabase secrets set SHOPKEEPER_PASS=your_strong_password_here
+ *   supabase secrets set SHOPKEEPER_PASS=admin_password
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";

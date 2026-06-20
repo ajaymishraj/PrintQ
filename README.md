@@ -37,7 +37,7 @@ Open your terminal and use the Supabase CLI to set your PayU keys and shopkeeper
 supabase secrets set PAYU_KEY="your_payu_merchant_key"
 supabase secrets set PAYU_SALT="your_payu_salt"
 supabase secrets set SHOPKEEPER_EMAIL="admin@printq.local"
-supabase secrets set SHOPKEEPER_PASS="your_secure_admin_password"
+supabase secrets set SHOPKEEPER_PASS="admin_password"
 ```
 
 ### Step 3: Deploy Serverless Edge Functions
@@ -76,4 +76,4 @@ const PRINTQ_CONFIG = {
 
 
 - **Student Dashboard**: Fill out the form, upload a document, and proceed with the payment checkout. Once paid, the live digital ticket will appear.
-- **Shopkeeper Dashboard**: Log in using your configured email (`admin@printq.local`) and the password you set in the Supabase secret `SHOPKEEPER_PASS` to manage print jobs and track daily metrics.
+- **Shopkeeper Dashboard**: Log in using your configured email (`admin@printq.local`) and the password `admin_password` (set in the Supabase secret `SHOPKEEPER_PASS`) to manage print jobs and track daily metrics.
