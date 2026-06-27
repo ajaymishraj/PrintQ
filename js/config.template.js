@@ -9,8 +9,8 @@
 const PRINTQ_CONFIG = {
 
   // ── Supabase ─────────────────────────────────────────────
-  supabaseUrl:     'https://fvcthhwngfbeskzpurcx.supabase.co',
-  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ2Y3RoaHduZ2ZiZXNrenB1cmN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4NjIxNzYsImV4cCI6MjA5NzQzODE3Nn0.1p5Dh0vmks4HAS8AXaeeJ_fgsXlXxFXYmlJ1BVDJweI',
+  supabaseUrl:     '',
+  supabaseAnonKey: '',
 
   // URL of your Supabase Edge Functions. Computed dynamically using supabaseUrl.
   get createPayuHashUrl() {
